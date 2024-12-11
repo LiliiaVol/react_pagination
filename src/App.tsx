@@ -9,7 +9,7 @@ export const App: React.FC = () => {
   const [perPage, setPerPage] = useState(5);
   const [page, setPage] = useState(1);
 
-  const visibelItems = (arrOfItems: string[]) => {
+  const visibleItems = (arrOfItems: string[]) => {
     const res = [];
 
     if (Math.floor(42 / page) < perPage) {
@@ -25,10 +25,15 @@ export const App: React.FC = () => {
     return res;
   };
 
-  const showenItems = visibelItems(items);
+  const shownItems = visibleItems(items);
 
   const handlePage = (chosenPage: number) => {
     setPage(chosenPage);
+  };
+
+  const handleChangeSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setPerPage(+event.target.value);
+    setPage(1);
   };
 
   return (
@@ -47,10 +52,7 @@ export const App: React.FC = () => {
             id="perPageSelector"
             className="form-control"
             value={perPage}
-            onChange={event => {
-              setPerPage(+event.target.value);
-              setPage(1);
-            }}
+            onChange={event => handleChangeSelect(event)}
           >
             <option value="3">3</option>
             <option value="5">5</option>
@@ -65,14 +67,14 @@ export const App: React.FC = () => {
       </div>
 
       <Pagination
-        total={42} // total number of items to paginate
-        perPage={perPage} // number of items per page
-        currentPage={page} /* optional with 1 by default */
+        total={42}
+        perPage={perPage}
+        currentPage={page}
         onPageChange={handlePage}
       />
 
       <ul>
-        {showenItems.map(item => (
+        {shownItems.map(item => (
           <li data-cy="item" key={item}>
             {item}
           </li>
@@ -81,5 +83,3 @@ export const App: React.FC = () => {
     </div>
   );
 };
-
-export default App;
