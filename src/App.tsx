@@ -3,23 +3,24 @@ import './App.css';
 import { getNumbers } from './utils';
 import { Pagination } from './components/Pagination';
 
-const items = getNumbers(1, 42).map(n => `Item ${n}`);
+const NUMBERS_PAGE = 42;
+const FIRST_PAGE = 1;
+const START_PER_PAGE = 5;
+const perPagesSelect = [3, 5, 10, 20];
+const items = getNumbers(FIRST_PAGE, NUMBERS_PAGE).map(n => `Item ${n}`);
 
 export const App: React.FC = () => {
-  const [perPage, setPerPage] = useState(5);
-  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(START_PER_PAGE);
+  const [page, setPage] = useState(FIRST_PAGE);
 
   const visibleItems = (arrOfItems: string[]) => {
     const res = [];
 
-    if (Math.floor(42 / page) < perPage) {
-      for (let i = perPage * page - perPage; i < 42; i++) {
-        res.push(arrOfItems[i]);
-      }
-    } else {
-      for (let i = perPage * page - perPage; i < perPage * page; i++) {
-        res.push(arrOfItems[i]);
-      }
+    const startIndex = perPage * (page - 1);
+    const endIndex = Math.min(startIndex + perPage, NUMBERS_PAGE);
+
+    for (let i = startIndex; i < endIndex; i++) {
+      res.push(arrOfItems[i]);
     }
 
     return res;
@@ -33,16 +34,19 @@ export const App: React.FC = () => {
 
   const handleChangeSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setPerPage(+event.target.value);
-    setPage(1);
+    setPage(FIRST_PAGE);
   };
+
+  const startItemIndex = page * perPage - perPage + 1;
+  const endItemIndex =
+    page * perPage < NUMBERS_PAGE ? page * perPage : NUMBERS_PAGE;
 
   return (
     <div className="container">
       <h1>Items with Pagination</h1>
 
       <p className="lead" data-cy="info">
-        Page {page} (items {page * perPage - perPage + 1} -{' '}
-        {page * perPage < 42 ? page * perPage : 42} of 42)
+        Page {page} (items {startItemIndex} - {endItemIndex} of {NUMBERS_PAGE})
       </p>
 
       <div className="form-group row">
@@ -52,12 +56,13 @@ export const App: React.FC = () => {
             id="perPageSelector"
             className="form-control"
             value={perPage}
-            onChange={event => handleChangeSelect(event)}
+            onChange={handleChangeSelect}
           >
-            <option value="3">3</option>
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
+            {perPagesSelect.map(option => (
+              <option value={option} key={option}>
+                {option}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -67,7 +72,7 @@ export const App: React.FC = () => {
       </div>
 
       <Pagination
-        total={42}
+        total={NUMBERS_PAGE}
         perPage={perPage}
         currentPage={page}
         onPageChange={handlePage}
